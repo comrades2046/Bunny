@@ -1,0 +1,50 @@
+import sys
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from PyQt5 import uic
+from Websocket import *
+from pandas import Series, DataFrame
+from datetime import datetime
+import time
+import requests
+import json
+
+form_class = uic.loadUiType("autostock.ui")[0]
+
+class MyWindow(QMainWindow, form_class, dic_pop_up, order_list_pop_up):
+
+    self.websocket = Websocket(self)
+
+    accounts = "00000000"
+    app_key = #앱키
+    app_secret = #앱시크릿
+    url_base = "https://openapi.koreainvestment.com:9443"
+
+    # 보안인증키 발급 정보
+    headers = {"content-type": "application/json"}
+    path_token = "oauth2/tokenP"
+    body_token = {"grant_type": "client_credentials",
+            "appkey": app_key,
+            "appsecret": app_secret}
+    url_token = f"{url_base}/{path_token}"
+
+    # access_token 발급
+    res = requests.post(url_token, headers=headers, data=json.dumps(body_token))
+    print("access token res 결과: ")
+    print(res)
+    access_token = res.json()["access_token"]
+    print("access_token 결과: " + access_token)
+
+    # hash key 발급
+    def hashkey(self, datas):
+        path = "uapi/hashkey"
+        url_base = self.url_base
+        url = f"{url_base}/{path}"
+        headers = {
+            'content-Type': 'application/json',
+            'appKey': self.app_key,
+            'appSecret': self.app_secret,
+        }
+        res = requests.post(url, headers=headers, data=json.dumps(datas))
+        hashkey = res.json()["HASH"]
+        return hashkey
